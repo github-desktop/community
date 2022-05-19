@@ -23,6 +23,11 @@ public class HomeController {
     @Autowired
     private UserService userService;
 
+    @GetMapping("site/register")
+    public String register() {
+        return "site/register";
+    }
+
     @GetMapping("/index")
     public String getIndexPage(Model model, Page page) {
         page.setRows(discussPostService.findDiscussPostCounts(null));
