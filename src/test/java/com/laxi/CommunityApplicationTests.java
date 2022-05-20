@@ -13,6 +13,7 @@ import org.thymeleaf.context.Context;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @SpringBootTest
 class CommunityApplicationTests {
@@ -31,6 +32,16 @@ class CommunityApplicationTests {
 
     @Test
     void contextLoads() {
+
+    }
+    @Test
+    void uuid() {
+        String s = UUID.randomUUID().toString().replaceAll("-", "");
+        System.out.println(s);
+        System.out.println(s.length());
+    }
+
+    void sendMail() {
         Context context = new Context();
         context.setVariable("username", "王熙来");
         String content = templateEngine.process("/mail/mailtest", context);
