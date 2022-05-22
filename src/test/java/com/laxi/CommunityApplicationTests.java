@@ -1,8 +1,9 @@
 package com.laxi;
 
 import com.laxi.dao.DiscussPostMapper;
+import com.laxi.dao.LoginTicketMapper;
 import com.laxi.dao.UserMapper;
-import com.laxi.pojo.DiscussPost;
+import com.laxi.pojo.LoginTicket;
 import com.laxi.pojo.User;
 import com.laxi.util.MailClient;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,6 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 @SpringBootTest
@@ -30,9 +30,29 @@ class CommunityApplicationTests {
     @Autowired
     TemplateEngine templateEngine;
 
+    @Autowired
+    LoginTicketMapper loginTicketMapper;
+
     @Test
     void contextLoads() {
 
+    }
+
+    @Test
+    void testLoginticket() {
+        loginTicketMapper.updateStatus("hehe", 0);
+        LoginTicket ticket = loginTicketMapper.selectByTicket("hehe");
+        System.out.println(ticket);
+    }
+
+    void insertLoginTicket() {
+        LoginTicket ticket = new LoginTicket();
+        ticket.setTicket("hehe");
+        ticket.setStatus(1);
+        ticket.setExpired(new Date());
+        ticket.setUserId(5);
+        int i = loginTicketMapper.insertLoginTicket(ticket);
+        System.out.println(i);
     }
 
     @Test

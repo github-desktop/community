@@ -1,10 +1,11 @@
 package com.laxi.service;
 
+import com.laxi.dao.LoginTicketMapper;
 import com.laxi.dao.UserMapper;
+import com.laxi.pojo.LoginTicket;
 import com.laxi.pojo.User;
 import com.laxi.util.CommunityConstant;
 import com.laxi.util.MailClient;
-import org.apache.tomcat.util.security.MD5Encoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,10 +13,7 @@ import org.springframework.util.DigestUtils;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class UserService implements CommunityConstant {
@@ -30,6 +28,39 @@ public class UserService implements CommunityConstant {
 
     @Autowired
     MailClient mailClient;
+
+    @Autowired
+    LoginTicketMapper loginTicketMapper;
+
+
+    public Map<String, Object> login(String username, String password, int expiredSeconds) {
+        Map<String, Object> hm = new HashMap<>();
+        if (username == null || username.equals("")) {
+            hm.put("usernameMsg", "账号不能为空");
+        }
+        if (password == null || password.equals("")) {
+            hm.put("passwordMsg", "密码不能为空");
+        }
+        if (!hm.isEmpty()) return hm;
+        User user = userMapper.selectByName(username);
+        if (user == null || user.getStatus() == 0) {
+            hm.put("usernameMsg", "账号错误，或者未激活");
+            return hm;
+        }
+        password = DigestUtils.md5DigestAsHex((password + user.getSalt()).getBytes());
+        if (!password.equals(user.getPassword())) {
+            hm.put("passwordMsg", "用户名或密码错误");
+            return hm;
+        }
+        LoginTicket loginTicket = new LoginTicket();
+        loginTicket.setUserId(user.getId());
+        loginTicket.setTicket(UUID.randomUUID().toString().replaceAll("-", ""));
+        loginTicket.setStatus(0);
+        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
+        loginTicketMapper.insertLoginTicket(loginTicket);
+        hm.put("ticket", loginTicket.getTicket());
+        return hm;
+    }
 
     public User findUserById(Integer id) {
         return userMapper.selectById(id);
@@ -98,5 +129,9 @@ public class UserService implements CommunityConstant {
         String content = templateEngine.process("/mail/activation", context);
         mailClient.sendMailHtml(user.getEmail(), "牛客社区激活", content);
         return new HashMap<>();
+    }
+
+    public void logout(String ticket) {
+        loginTicketMapper.updateStatus(ticket, 1);
     }
 }
