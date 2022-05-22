@@ -34,6 +34,16 @@ class CommunityApplicationTests {
     void contextLoads() {
 
     }
+
+    @Test
+    void insetTest() {
+        User user = new User();
+        user.setUsername("测试用户四");
+        int i = userMapper.insertUser(user);
+        System.out.println(i);
+        System.out.println(user.getId());
+    }
+
     @Test
     void uuid() {
         String s = UUID.randomUUID().toString().replaceAll("-", "");

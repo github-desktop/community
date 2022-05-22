@@ -8,7 +8,7 @@
             id,username,PASSWORD,salt,email,TYPE,STATUS,activation_code,header_url,create_time
         </if>
     </sql>
-    <insert id="insertUser">
+    <insert id="insertUser" keyProperty="id">
         INSERT
         INTO USER
         (username, PASSWORD, salt, email, TYPE, STATUS, activation_code, header_url, create_time)
